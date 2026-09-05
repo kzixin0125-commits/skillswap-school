@@ -1,0 +1,417 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== Global Reset ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #F8F9FE;
+  color: #2D2D3F;
+}
+
+/* ========== Custom Scrollbar ========== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6C63FF;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a52d5;
+}
+
+/* ========== Utility Classes ========== */
+.text-primary {
+  color: #6C63FF;
+}
+
+.text-secondary {
+  color: #FF6584;
+}
+
+.bg-primary {
+  background-color: #6C63FF;
+}
+
+.bg-light {
+  background-color: #F8F9FE;
+}
+
+/* ========== Card Hover Effect ========== */
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.15);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* ========== Button Hover ========== */
+.btn-primary:hover {
+  background-color: #5a52d5;
+  transform: scale(1.02);
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #e55574;
+  transform: scale(1.02);
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+/* ========== Loading Spinner ========== */
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #6C63FF;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========== Fade In Animation ========== */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== Responsive Design ========== */
+
+/* Tablet */
+@media screen and (max-width: 768px) {
+  /* Dashboard */
+  .dashboard-actions {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Home title */
+  .home-title {
+    font-size: 32px !important;
+  }
+
+  /* Stats */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Cards */
+  .card {
+    padding: 30px !important;
+  }
+
+  /* Container */
+  .container {
+    padding: 20px !important;
+  }
+}
+
+/* Mobile */
+@media screen and (max-width: 480px) {
+  /* ===== Navigation ===== */
+  nav {
+    padding: 12px 0 !important;
+  }
+
+  nav .container {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  nav .links {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+
+  nav .links a,
+  nav .links button {
+    font-size: 14px !important;
+    padding: 4px 10px !important;
+  }
+
+  /* ===== Home Page ===== */
+  .home-title {
+    font-size: 28px !important;
+  }
+
+  .home-subtitle {
+    font-size: 16px !important;
+  }
+
+  .home-buttons {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .home-buttons a {
+    width: 80% !important;
+    text-align: center !important;
+  }
+
+  .home-features {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .home-features .feature {
+    padding: 20px !important;
+  }
+
+  /* ===== Dashboard ===== */
+  .dashboard-welcome {
+    font-size: 22px !important;
+  }
+
+  .dashboard-actions {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .dashboard-actions a {
+    padding: 16px !important;
+    font-size: 14px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .stats-grid .stat-card {
+    padding: 16px !important;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    padding: 20px !important;
+    margin: 10px !important;
+    border-radius: 10px !important;
+  }
+
+  /* ===== Forms ===== */
+  form input,
+  form select,
+  form textarea {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+
+  form button {
+    font-size: 14px !important;
+    padding: 12px !important;
+  }
+
+  /* ===== Skills Grid ===== */
+  .skills-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ===== Match Card ===== */
+  .match-card {
+    padding: 16px !important;
+  }
+
+  .match-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .match-score {
+    align-self: flex-start !important;
+  }
+
+  .user-skills {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .match-item {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* ===== Profile ===== */
+  .profile-stats {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .profile-stats span {
+    font-size: 12px !important;
+  }
+
+  .button-group {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .button-group a {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .avatar {
+    width: 60px !important;
+    height: 60px !important;
+    font-size: 24px !important;
+  }
+
+  /* ===== Requests ===== */
+  .request-card {
+    padding: 16px !important;
+  }
+
+  .request-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .request-actions {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .request-actions button,
+  .request-actions a {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* ===== Explore ===== */
+  .categories {
+    gap: 6px !important;
+  }
+
+  .categories button {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+
+  .search-input {
+    font-size: 14px !important;
+    padding: 12px !important;
+  }
+
+  /* ===== General ===== */
+  .container {
+    padding: 16px !important;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  h3 {
+    font-size: 16px !important;
+  }
+
+  p {
+    font-size: 14px !important;
+  }
+
+  .back-link {
+    font-size: 14px !important;
+    margin-top: 24px !important;
+  }
+
+  /* ===== Stars Rating ===== */
+  .stars {
+    font-size: 30px !important;
+    gap: 4px !important;
+  }
+
+  .stars button {
+    font-size: 30px !important;
+  }
+}
+
+/* Small Mobile */
+@media screen and (max-width: 360px) {
+  .home-title {
+    font-size: 22px !important;
+  }
+
+  nav .links {
+    gap: 6px !important;
+  }
+
+  nav .links a,
+  nav .links button {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+  }
+
+  .dashboard-welcome {
+    font-size: 18px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .request-actions button,
+  .request-actions a {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+
+  .card {
+    padding: 14px !important;
+  }
+}
+
+/* ========== Print Styles ========== */
+@media print {
+  nav {
+    display: none !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
