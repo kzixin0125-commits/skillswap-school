@@ -2,7 +2,6 @@ import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
-import { setupDemo } from "./utils/demoSetup";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -27,7 +26,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/add-skill" element={<PrivateRoute><AddSkill /></PrivateRoute>} />
           <Route path="/add-wanted" element={<PrivateRoute><AddWantedSkill /></PrivateRoute>} />
@@ -48,12 +46,15 @@ function App() {
 
 function Navigation() {
   const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav style={navStyles.nav}>
       <div style={navStyles.container}>
         <Link to="/" style={navStyles.logo}>LEARNMATE</Link>
-        <div style={navStyles.links}>
+
+        {/* Desktop 导航 */}
+        <div className="nav-desktop" style={navStyles.links}>
           <Link to="/" style={navStyles.link}>Home</Link>
           {user ? (
             <>
@@ -69,7 +70,42 @@ function Navigation() {
             </>
           )}
         </div>
+
+        {/* 汉堡按钮（手机显示） */}
+        <button
+          className="nav-hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={navStyles.hamburger}
+          aria-label="Menu"
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
       </div>
+
+      {/* 手机下拉菜单 */}
+      {menuOpen && (
+        <div className="nav-mobile" style={navStyles.mobileMenu}>
+          <Link to="/" style={navStyles.mobileLink} onClick={() => setMenuOpen(false)}>Home</Link>
+          {user ? (
+            <>
+              <Link to="/dashboard" style={navStyles.mobileLink} onClick={() => setMenuOpen(false)}>Dashboard</Link>
+              <Link to="/explore" style={navStyles.mobileLink} onClick={() => setMenuOpen(false)}>Explore</Link>
+              <Link to="/profile" style={navStyles.mobileLink} onClick={() => setMenuOpen(false)}>Profile</Link>
+              <button
+                onClick={() => { logout(); setMenuOpen(false); }}
+                style={navStyles.mobileLogout}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" style={navStyles.mobileLink} onClick={() => setMenuOpen(false)}>Login</Link>
+              <Link to="/register" style={navStyles.mobileLink} onClick={() => setMenuOpen(false)}>Sign Up</Link>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
@@ -77,17 +113,16 @@ function Navigation() {
 function Home() {
   const navigate = useNavigate();
   const [demoLoading, setDemoLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleTryDemo = async () => {
     setDemoLoading(true);
-    setError("");
     try {
+      const { setupDemo } = await import("./utils/demoSetup");
       await setupDemo();
       navigate("/dashboard");
     } catch (err) {
-      console.error("Demo setup failed:", err);
-      setError("Demo setup failed. Please check your internet and try again.");
+      console.error(err);
+      alert("Demo setup failed. Please try again.");
     } finally {
       setDemoLoading(false);
     }
@@ -97,38 +132,34 @@ function Home() {
     <div style={homeStyles.container}>
       <h1 style={homeStyles.title}>Learn. Share. Connect.</h1>
       <p style={homeStyles.subtitle}>
-        Exchange skills with people around you and learn something new from someone who already knows it.
+        Exchange skills with people around you.
       </p>
 
-      {error && <p style={homeStyles.error}>{error}</p>}
-
       <div style={homeStyles.buttons}>
-        <Link to="/register" style={homeStyles.primaryBtn}>Get Started</Link>
+        <Link to="/register" style={homeStyles.primaryBtn}>
+          Get Started
+        </Link>
         <button
           onClick={handleTryDemo}
           style={homeStyles.demoBtn}
           disabled={demoLoading}
         >
-          {demoLoading ? "⏳ Setting up demo..." : "🚀 Try Demo (No Signup)"}
+          {demoLoading ? "Loading..." : "🚀 Try Demo"}
         </button>
       </div>
-
-      <p style={homeStyles.demoHint}>
-        Click <strong>Try Demo</strong> to instantly load sample users, skills and requests.
-      </p>
 
       <div style={homeStyles.features}>
         <div style={homeStyles.feature}>
           <h3>📚 Learn</h3>
-          <p>Discover new skills from people in your community</p>
+          <p>Discover new skills</p>
         </div>
         <div style={homeStyles.feature}>
           <h3>🤝 Share</h3>
-          <p>Teach what you know and help others grow</p>
+          <p>Teach what you know</p>
         </div>
         <div style={homeStyles.feature}>
           <h3>🔗 Connect</h3>
-          <p>Build meaningful connections through skill exchange</p>
+          <p>Build meaningful connections</p>
         </div>
       </div>
     </div>
@@ -138,8 +169,9 @@ function Home() {
 const navStyles = {
   nav: {
     backgroundColor: "#6C63FF",
-    padding: "16px 0",
+    padding: "14px 0",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    position: "relative",
   },
   container: {
     maxWidth: "1200px",
@@ -147,33 +179,64 @@ const navStyles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "0 20px",
+    padding: "0 16px",
   },
   logo: {
     color: "white",
-    fontSize: "24px",
+    fontSize: "20px",
     fontWeight: "bold",
     textDecoration: "none",
     letterSpacing: "1px",
   },
   links: {
     display: "flex",
-    gap: "20px",
+    gap: "18px",
     alignItems: "center",
   },
   link: {
     color: "white",
     textDecoration: "none",
-    fontSize: "16px",
+    fontSize: "15px",
   },
   logoutBtn: {
     backgroundColor: "rgba(255,255,255,0.2)",
     color: "white",
     border: "none",
-    padding: "8px 16px",
+    padding: "6px 14px",
     borderRadius: "6px",
     cursor: "pointer",
-    fontSize: "16px",
+    fontSize: "14px",
+  },
+  hamburger: {
+    display: "none",
+    background: "none",
+    border: "none",
+    color: "white",
+    fontSize: "24px",
+    cursor: "pointer",
+    padding: "0 6px",
+  },
+  mobileMenu: {
+    display: "none",
+    flexDirection: "column",
+    backgroundColor: "#5a52d5",
+    padding: "6px 0",
+  },
+  mobileLink: {
+    color: "white",
+    textDecoration: "none",
+    padding: "12px 20px",
+    fontSize: "15px",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
+  },
+  mobileLogout: {
+    color: "white",
+    background: "none",
+    border: "none",
+    padding: "12px 20px",
+    fontSize: "15px",
+    textAlign: "left",
+    cursor: "pointer",
   },
 };
 
@@ -181,67 +244,54 @@ const homeStyles = {
   container: {
     maxWidth: "900px",
     margin: "0 auto",
-    padding: "60px 20px",
+    padding: "40px 16px",
     textAlign: "center",
   },
   title: {
-    fontSize: "48px",
+    fontSize: "32px",
     color: "#2D2D3F",
-    marginBottom: "16px",
+    marginBottom: "12px",
   },
   subtitle: {
-    fontSize: "20px",
+    fontSize: "16px",
     color: "#666",
-    maxWidth: "600px",
-    margin: "0 auto 40px",
+    maxWidth: "500px",
+    margin: "0 auto 30px",
   },
   buttons: {
     display: "flex",
-    gap: "16px",
+    gap: "12px",
     justifyContent: "center",
-    marginBottom: "12px",
     flexWrap: "wrap",
+    marginBottom: "40px",
   },
   primaryBtn: {
     backgroundColor: "#6C63FF",
     color: "white",
-    padding: "14px 32px",
+    padding: "12px 28px",
     borderRadius: "8px",
     textDecoration: "none",
     fontWeight: "bold",
-    fontSize: "16px",
-    border: "none",
-    cursor: "pointer",
+    fontSize: "15px",
   },
   demoBtn: {
     backgroundColor: "#FF6584",
     color: "white",
-    padding: "14px 32px",
+    padding: "12px 28px",
     borderRadius: "8px",
     fontWeight: "bold",
+    fontSize: "15px",
     border: "none",
     cursor: "pointer",
-    fontSize: "16px",
-  },
-  demoHint: {
-    fontSize: "13px",
-    color: "#999",
-    marginBottom: "50px",
-  },
-  error: {
-    color: "red",
-    fontSize: "14px",
-    marginBottom: "16px",
   },
   features: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "30px",
-    marginTop: "40px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "16px",
   },
   feature: {
     backgroundColor: "white",
-    padding: "30px",
+    padding: "20px",
     borderRadius: "12px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
   },

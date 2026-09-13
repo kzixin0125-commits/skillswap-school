@@ -9,11 +9,11 @@ function Dashboard() {
       <div style={styles.card}>
         {/* Header */}
         <div style={styles.header}>
-          <div style={styles.headerContent}>
+          <div style={styles.headerText}>
             <h1 style={styles.welcome}>
               Welcome back, {userData?.name || user?.displayName || "User"}! 👋
             </h1>
-            <p style={styles.subtitle}>Ready to learn and share skills today?</p>
+            <p style={styles.subtitle}>Ready to learn and share?</p>
           </div>
           <Link to="/profile" style={styles.profileBtn}>
             <span style={styles.avatar}>{userData?.name?.charAt(0) || "U"}</span>
@@ -24,28 +24,26 @@ function Dashboard() {
         <div style={styles.stats}>
           <div style={styles.statCard}>
             <div style={styles.statIcon}>⭐</div>
-            <div style={styles.statInfo}>
+            <div>
               <h3 style={styles.statNumber}>{userData?.rating || 0}</h3>
               <p style={styles.statLabel}>Rating</p>
             </div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statIcon}>🔄</div>
-            <div style={styles.statInfo}>
+            <div>
               <h3 style={styles.statNumber}>{userData?.completedSwaps || 0}</h3>
-              <p style={styles.statLabel}>Swaps Completed</p>
+              <p style={styles.statLabel}>Swaps</p>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>Quick Actions</h2>
-        </div>
+        <h2 style={styles.sectionTitle}>Quick Actions</h2>
         <div style={styles.actions}>
           <Link to="/explore" style={styles.actionCard}>
             <span style={styles.actionEmoji}>🔍</span>
-            <span style={styles.actionLabel}>Explore Skills</span>
+            <span style={styles.actionLabel}>Explore</span>
           </Link>
           <Link to="/add-skill" style={styles.actionCard}>
             <span style={styles.actionEmoji}>📤</span>
@@ -57,15 +55,15 @@ function Dashboard() {
           </Link>
           <Link to="/matches" style={styles.actionCard}>
             <span style={styles.actionEmoji}>🤝</span>
-            <span style={styles.actionLabel}>Find a Match</span>
+            <span style={styles.actionLabel}>Find Match</span>
           </Link>
           <Link to="/requests" style={styles.actionCard}>
             <span style={styles.actionEmoji}>📨</span>
-            <span style={styles.actionLabel}>View Requests</span>
+            <span style={styles.actionLabel}>Requests</span>
           </Link>
           <Link to="/delete-skill" style={styles.actionCard}>
             <span style={styles.actionEmoji}>⚙️</span>
-            <span style={styles.actionLabel}>Manage Skills</span>
+            <span style={styles.actionLabel}>Manage</span>
           </Link>
         </div>
 
@@ -79,152 +77,135 @@ const styles = {
   container: {
     minHeight: "100vh",
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#e8f5e9",  // 浅绿色背景
-    padding: "20px",
+    backgroundColor: "#e8f5e9",
+    padding: "16px",
   },
   card: {
     backgroundColor: "white",
-    padding: "40px",
+    padding: "24px",
     borderRadius: "12px",
     boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
     width: "100%",
-    maxWidth: "700px",
+    maxWidth: "600px",
+    height: "fit-content",
   },
 
   // Header
   header: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "30px",
+    alignItems: "flex-start",
+    marginBottom: "20px",
+    gap: "12px",
   },
-  headerContent: {
+  headerText: {
     flex: 1,
+    minWidth: 0,
   },
   welcome: {
-    fontSize: "26px",
+    fontSize: "20px",
     fontWeight: "700",
     color: "#2D2D3F",
     marginBottom: "4px",
+    lineHeight: "1.3",
   },
   subtitle: {
-    fontSize: "15px",
+    fontSize: "13px",
     color: "#888",
   },
   profileBtn: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "48px",
-    height: "48px",
+    width: "44px",
+    height: "44px",
+    minWidth: "44px",
     backgroundColor: "#6C63FF",
     borderRadius: "50%",
     textDecoration: "none",
-    flexShrink: 0,
   },
   avatar: {
     color: "white",
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: "600",
   },
 
   // Stats
   stats: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "16px",
-    marginBottom: "30px",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "10px",
+    marginBottom: "20px",
   },
   statCard: {
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    gap: "10px",
     backgroundColor: "#f5f7fb",
-    padding: "16px 20px",
+    padding: "12px",
     borderRadius: "10px",
   },
   statIcon: {
-    fontSize: "28px",
-  },
-  statInfo: {
-    flex: 1,
+    fontSize: "22px",
   },
   statNumber: {
-    fontSize: "26px",
+    fontSize: "20px",
     fontWeight: "700",
     color: "#2D2D3F",
-    marginBottom: "0",
     lineHeight: "1.2",
   },
   statLabel: {
-    fontSize: "13px",
+    fontSize: "11px",
     color: "#999",
-    marginBottom: "0",
   },
 
   // Section
-  sectionHeader: {
-    marginBottom: "14px",
-  },
   sectionTitle: {
-    fontSize: "18px",
+    fontSize: "15px",
     fontWeight: "600",
     color: "#2D2D3F",
+    marginBottom: "12px",
   },
 
-  // Actions
+  // Actions - 3列小按钮
   actions: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-    gap: "12px",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    gap: "8px",
   },
   actionCard: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: "6px",
+    gap: "4px",
     backgroundColor: "#f5f7fb",
-    padding: "20px 12px",
+    padding: "12px 6px",
     borderRadius: "10px",
     textDecoration: "none",
     color: "#2D2D3F",
-    transition: "transform 0.2s, background 0.2s",
     border: "2px solid transparent",
+    transition: "all 0.2s",
   },
   actionEmoji: {
-    fontSize: "26px",
+    fontSize: "22px",
   },
   actionLabel: {
-    fontSize: "13px",
+    fontSize: "11px",
     fontWeight: "500",
     textAlign: "center",
     color: "#555",
   },
 
-  // Back Link
   backLink: {
     display: "block",
-    marginTop: "30px",
+    marginTop: "20px",
     color: "#6C63FF",
     textDecoration: "none",
     textAlign: "center",
-    fontSize: "14px",
-    fontWeight: "500",
+    fontSize: "13px",
   },
 };
-
-// Add hover CSS
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-  .action-card:hover {
-    background: #e8eaf6;
-    transform: translateY(-2px);
-    border-color: #6C63FF;
-  }
-`;
-document.head.appendChild(styleSheet);
 
 export default Dashboard;
