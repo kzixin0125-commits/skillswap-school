@@ -10,6 +10,7 @@ function EditProfile() {
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -18,6 +19,7 @@ function EditProfile() {
     if (userData) {
       setName(userData.name || "");
       setBio(userData.bio || "");
+      setPhone(userData.phone || "");
     }
   }, [userData]);
 
@@ -31,10 +33,10 @@ function EditProfile() {
       await updateDoc(doc(db, "users", user.uid), {
         name: name,
         bio: bio,
+        phone: phone,
       });
 
-      // 更新 Context 中的用户数据
-      setUserData({ ...userData, name, bio });
+      setUserData({ ...userData, name, bio, phone });
       
       setSuccess(true);
       setTimeout(() => {
@@ -64,6 +66,17 @@ function EditProfile() {
               onChange={(e) => setName(e.target.value)}
               style={styles.input}
               required
+            />
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>Phone Number</label>
+            <input
+              type="tel"
+              placeholder="e.g. 012-3456789"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              style={styles.input}
             />
           </div>
 

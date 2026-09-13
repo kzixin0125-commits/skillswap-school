@@ -1,7 +1,7 @@
 {
-  "name": "skillswap-school",
+  "name": "learnmate",
   "version": "1.0.0",
-  "description": "SkillSwap School - Learn and Share Skills",
+  "description": "LEARNMATE - Learn and Share Skills",
   "type": "module",
   "scripts": {
     "dev": "vite",

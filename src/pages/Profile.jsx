@@ -64,8 +64,23 @@ function Profile() {
             {profileUser.name?.charAt(0) || "?"}
           </div>
           <h1 style={styles.name}>{profileUser.name || "User"}</h1>
-          <p style={styles.email}>{profileUser.email}</p>
-          
+
+          {/* Contact Info */}
+          <div style={styles.contactSection}>
+            <p style={styles.contactItem}>
+              📧 <a href={`mailto:${profileUser.email}`} style={styles.contactLink}>
+                {profileUser.email}
+              </a>
+            </p>
+            {profileUser.phone && (
+              <p style={styles.contactItem}>
+                📱 <a href={`tel:${profileUser.phone}`} style={styles.contactLink}>
+                  {profileUser.phone}
+                </a>
+              </p>
+            )}
+          </div>
+
           <div style={styles.buttonGroup}>
             {isOwnProfile && (
               <Link to="/edit-profile" style={styles.editBtn}>
@@ -164,12 +179,19 @@ const styles = {
   name: {
     fontSize: "28px",
     color: "#2D2D3F",
+    marginBottom: "8px",
+  },
+  contactSection: {
+    marginBottom: "12px",
+  },
+  contactItem: {
+    fontSize: "14px",
+    color: "#555",
     marginBottom: "4px",
   },
-  email: {
-    color: "#666",
-    fontSize: "14px",
-    marginBottom: "12px",
+  contactLink: {
+    color: "#6C63FF",
+    textDecoration: "none",
   },
   buttonGroup: {
     display: "flex",
@@ -186,8 +208,6 @@ const styles = {
     borderRadius: "8px",
     textDecoration: "none",
     fontSize: "14px",
-    border: "none",
-    cursor: "pointer",
   },
   reportBtn: {
     display: "inline-block",
@@ -197,8 +217,6 @@ const styles = {
     borderRadius: "8px",
     textDecoration: "none",
     fontSize: "14px",
-    border: "none",
-    cursor: "pointer",
   },
   stats: {
     display: "flex",

@@ -7,6 +7,7 @@ import { auth, db } from "../firebase/firebase";
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,17 +31,15 @@ function Register() {
     setLoading(true);
 
     try {
-      // Create user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update profile
       await updateProfile(user, { displayName: name });
 
-      // Save user data to Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: name,
         email: email,
+        phone: phone,
         bio: "",
         rating: 0,
         completedSwaps: 0,
@@ -57,7 +56,7 @@ function Register() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>SkillSwap School</h1>
+        <h1 style={styles.title}>LEARNMATE</h1>
         <h2 style={styles.subtitle}>Create Account</h2>
 
         {error && <p style={styles.error}>{error}</p>}
@@ -79,6 +78,14 @@ function Register() {
             onChange={(e) => setEmail(e.target.value)}
             style={styles.input}
             required
+          />
+
+          <input
+            type="tel"
+            placeholder="Phone Number (optional)"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            style={styles.input}
           />
 
           <input
@@ -108,7 +115,7 @@ function Register() {
           Already have an account? <Link to="/login" style={styles.link}>Login</Link>
         </p>
         <p style={styles.linkText}>
-          <Link to="/" style={styles.link}>? Back to Home</Link>
+          <Link to="/" style={styles.link}>← Back to Home</Link>
         </p>
       </div>
     </div>
@@ -137,6 +144,7 @@ const styles = {
     textAlign: "center",
     marginBottom: "8px",
     fontSize: "24px",
+    letterSpacing: "1px",
   },
   subtitle: {
     textAlign: "center",

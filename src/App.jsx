@@ -1,6 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
+import { setupDemo } from "./utils/demoSetup";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -25,103 +27,19 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/add-skill"
-            element={
-              <PrivateRoute>
-                <AddSkill />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/add-wanted"
-            element={
-              <PrivateRoute>
-                <AddWantedSkill />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/explore"
-            element={
-              <PrivateRoute>
-                <Explore />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/matches"
-            element={
-              <PrivateRoute>
-                <Matches />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/requests"
-            element={
-              <PrivateRoute>
-                <Requests />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile/:userId"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/edit-profile"
-            element={
-              <PrivateRoute>
-                <EditProfile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/delete-skill"
-            element={
-              <PrivateRoute>
-                <DeleteSkill />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/complete-swap/:requestId"
-            element={
-              <PrivateRoute>
-                <CompleteSwap />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/report/:userId"
-            element={
-              <PrivateRoute>
-                <ReportUser />
-              </PrivateRoute>
-            }
-          />
+
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/add-skill" element={<PrivateRoute><AddSkill /></PrivateRoute>} />
+          <Route path="/add-wanted" element={<PrivateRoute><AddWantedSkill /></PrivateRoute>} />
+          <Route path="/explore" element={<PrivateRoute><Explore /></PrivateRoute>} />
+          <Route path="/matches" element={<PrivateRoute><Matches /></PrivateRoute>} />
+          <Route path="/requests" element={<PrivateRoute><Requests /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/profile/:userId" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+          <Route path="/delete-skill" element={<PrivateRoute><DeleteSkill /></PrivateRoute>} />
+          <Route path="/complete-swap/:requestId" element={<PrivateRoute><CompleteSwap /></PrivateRoute>} />
+          <Route path="/report/:userId" element={<PrivateRoute><ReportUser /></PrivateRoute>} />
         </Routes>
       </AuthProvider>
     </Router>
@@ -134,7 +52,7 @@ function Navigation() {
   return (
     <nav style={navStyles.nav}>
       <div style={navStyles.container}>
-        <Link to="/" style={navStyles.logo}>SkillSwap</Link>
+        <Link to="/" style={navStyles.logo}>LEARNMATE</Link>
         <div style={navStyles.links}>
           <Link to="/" style={navStyles.link}>Home</Link>
           {user ? (
@@ -157,16 +75,48 @@ function Navigation() {
 }
 
 function Home() {
+  const navigate = useNavigate();
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleTryDemo = async () => {
+    setDemoLoading(true);
+    setError("");
+    try {
+      await setupDemo();
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Demo setup failed:", err);
+      setError("Demo setup failed. Please check your internet and try again.");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   return (
     <div style={homeStyles.container}>
       <h1 style={homeStyles.title}>Learn. Share. Connect.</h1>
       <p style={homeStyles.subtitle}>
         Exchange skills with people around you and learn something new from someone who already knows it.
       </p>
+
+      {error && <p style={homeStyles.error}>{error}</p>}
+
       <div style={homeStyles.buttons}>
         <Link to="/register" style={homeStyles.primaryBtn}>Get Started</Link>
-        <Link to="/login" style={homeStyles.secondaryBtn}>Login</Link>
+        <button
+          onClick={handleTryDemo}
+          style={homeStyles.demoBtn}
+          disabled={demoLoading}
+        >
+          {demoLoading ? "⏳ Setting up demo..." : "🚀 Try Demo (No Signup)"}
+        </button>
       </div>
+
+      <p style={homeStyles.demoHint}>
+        Click <strong>Try Demo</strong> to instantly load sample users, skills and requests.
+      </p>
+
       <div style={homeStyles.features}>
         <div style={homeStyles.feature}>
           <h3>📚 Learn</h3>
@@ -204,6 +154,7 @@ const navStyles = {
     fontSize: "24px",
     fontWeight: "bold",
     textDecoration: "none",
+    letterSpacing: "1px",
   },
   links: {
     display: "flex",
@@ -248,7 +199,8 @@ const homeStyles = {
     display: "flex",
     gap: "16px",
     justifyContent: "center",
-    marginBottom: "60px",
+    marginBottom: "12px",
+    flexWrap: "wrap",
   },
   primaryBtn: {
     backgroundColor: "#6C63FF",
@@ -257,15 +209,29 @@ const homeStyles = {
     borderRadius: "8px",
     textDecoration: "none",
     fontWeight: "bold",
+    fontSize: "16px",
+    border: "none",
+    cursor: "pointer",
   },
-  secondaryBtn: {
-    backgroundColor: "white",
-    color: "#6C63FF",
+  demoBtn: {
+    backgroundColor: "#FF6584",
+    color: "white",
     padding: "14px 32px",
     borderRadius: "8px",
-    textDecoration: "none",
     fontWeight: "bold",
-    border: "2px solid #6C63FF",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "16px",
+  },
+  demoHint: {
+    fontSize: "13px",
+    color: "#999",
+    marginBottom: "50px",
+  },
+  error: {
+    color: "red",
+    fontSize: "14px",
+    marginBottom: "16px",
   },
   features: {
     display: "grid",

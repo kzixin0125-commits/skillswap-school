@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/firebase";
+import { setupDemo } from "../utils/demoSetup";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -37,10 +39,24 @@ function Login() {
     }
   };
 
+  const handleTryDemo = async () => {
+    setDemoLoading(true);
+    setError("");
+    try {
+      await setupDemo();
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Demo setup failed:", err);
+      setError("Demo setup failed. Please try again.");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>SkillSwap School</h1>
+        <h1 style={styles.title}>LEARNMATE</h1>
         <h2 style={styles.subtitle}>Login</h2>
 
         {error && <p style={styles.error}>{error}</p>}
@@ -64,9 +80,9 @@ function Login() {
             required
           />
 
-          <button 
-            type="button" 
-            onClick={handleForgotPassword} 
+          <button
+            type="button"
+            onClick={handleForgotPassword}
             style={styles.forgotBtn}
           >
             Forgot Password?
@@ -77,8 +93,22 @@ function Login() {
           </button>
         </form>
 
+        <div style={styles.divider}>
+          <span style={styles.dividerText}>OR</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleTryDemo}
+          style={styles.demoBtn}
+          disabled={demoLoading}
+        >
+          {demoLoading ? "⏳ Setting up demo..." : "🚀 Try Demo (No Signup)"}
+        </button>
+
         <p style={styles.linkText}>
-          Don't have an account? <Link to="/register" style={styles.link}>Sign Up</Link>
+          Don't have an account?{" "}
+          <Link to="/register" style={styles.link}>Sign Up</Link>
         </p>
         <p style={styles.linkText}>
           <Link to="/" style={styles.link}>← Back to Home</Link>
@@ -95,6 +125,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#f5f5f5",
+    padding: "20px",
   },
   card: {
     backgroundColor: "white",
@@ -109,6 +140,7 @@ const styles = {
     textAlign: "center",
     marginBottom: "8px",
     fontSize: "24px",
+    letterSpacing: "1px",
   },
   subtitle: {
     textAlign: "center",
@@ -144,6 +176,29 @@ const styles = {
     fontSize: "14px",
     textDecoration: "underline",
     textAlign: "right",
+  },
+  divider: {
+    display: "flex",
+    alignItems: "center",
+    textAlign: "center",
+    margin: "20px 0 12px",
+  },
+  dividerText: {
+    flex: 1,
+    color: "#999",
+    fontSize: "13px",
+    position: "relative",
+  },
+  demoBtn: {
+    padding: "12px",
+    backgroundColor: "#FF6584",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "16px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    width: "100%",
   },
   error: {
     color: "red",
