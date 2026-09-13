@@ -30,47 +30,6 @@ body {
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #5a52d5;
-}
-
-/* ========== Utility Classes ========== */
-.text-primary {
-  color: #6C63FF;
-}
-
-.text-secondary {
-  color: #FF6584;
-}
-
-.bg-primary {
-  background-color: #6C63FF;
-}
-
-.bg-light {
-  background-color: #F8F9FE;
-}
-
-/* ========== Card Hover Effect ========== */
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-/* ========== Button Hover ========== */
-.btn-primary:hover {
-  background-color: #5a52d5;
-  transform: scale(1.02);
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn-secondary:hover {
-  background-color: #e55574;
-  transform: scale(1.02);
-  transition: background-color 0.3s, transform 0.2s;
-}
-
 /* ========== Loading Spinner ========== */
 .spinner {
   border: 4px solid #f3f3f3;
@@ -87,331 +46,206 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* ========== Fade In Animation ========== */
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ========== Responsive Design ========== */
-
-/* Tablet */
+/* ========== TABLET (max 768px) ========== */
 @media screen and (max-width: 768px) {
-  /* Dashboard */
-  .dashboard-actions {
-    grid-template-columns: 1fr 1fr !important;
-  }
-
-  /* Home title */
-  .home-title {
-    font-size: 32px !important;
-  }
-
-  /* Stats */
-  .stats-grid {
-    grid-template-columns: 1fr 1fr !important;
-  }
-
-  /* Cards */
-  .card {
-    padding: 30px !important;
-  }
-
-  /* Container */
-  .container {
-    padding: 20px !important;
-  }
-}
-
-/* Mobile */
-@media screen and (max-width: 480px) {
-  /* ===== Navigation ===== */
+  /* Navigation */
   nav {
     padding: 12px 0 !important;
   }
 
-  nav .container {
+  nav > div {
     flex-direction: column !important;
-    gap: 10px !important;
+    gap: 12px !important;
+    padding: 0 12px !important;
   }
 
-  nav .links {
+  nav > div > div {
     flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  nav .links a,
-  nav .links button {
-    font-size: 14px !important;
-    padding: 4px 10px !important;
-  }
-
-  /* ===== Home Page ===== */
-  .home-title {
-    font-size: 28px !important;
-  }
-
-  .home-subtitle {
-    font-size: 16px !important;
-  }
-
-  .home-buttons {
-    flex-direction: column !important;
-    align-items: center !important;
     gap: 12px !important;
   }
 
-  .home-buttons a {
-    width: 80% !important;
-    text-align: center !important;
-  }
-
-  .home-features {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-
-  .home-features .feature {
-    padding: 20px !important;
-  }
-
-  /* ===== Dashboard ===== */
-  .dashboard-welcome {
-    font-size: 22px !important;
-  }
-
-  .dashboard-actions {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  .dashboard-actions a {
-    padding: 16px !important;
+  nav a,
+  nav button {
     font-size: 14px !important;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-  }
-
-  .stats-grid .stat-card {
-    padding: 16px !important;
-  }
-
-  /* ===== Cards ===== */
-  .card {
-    padding: 20px !important;
-    margin: 10px !important;
-    border-radius: 10px !important;
-  }
-
-  /* ===== Forms ===== */
-  form input,
-  form select,
-  form textarea {
-    font-size: 14px !important;
-    padding: 10px !important;
-  }
-
-  form button {
-    font-size: 14px !important;
-    padding: 12px !important;
-  }
-
-  /* ===== Skills Grid ===== */
-  .skills-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  /* ===== Match Card ===== */
-  .match-card {
-    padding: 16px !important;
-  }
-
-  .match-header {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
-  }
-
-  .match-score {
-    align-self: flex-start !important;
-  }
-
-  .user-skills {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-  }
-
-  .match-item {
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-  }
-
-  /* ===== Profile ===== */
-  .profile-stats {
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 8px !important;
-  }
-
-  .profile-stats span {
-    font-size: 12px !important;
-  }
-
-  .button-group {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 8px !important;
-  }
-
-  .button-group a {
-    width: 100% !important;
-    text-align: center !important;
-  }
-
-  .avatar {
-    width: 60px !important;
-    height: 60px !important;
-    font-size: 24px !important;
-  }
-
-  /* ===== Requests ===== */
-  .request-card {
-    padding: 16px !important;
-  }
-
-  .request-header {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
-  }
-
-  .request-actions {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
-
-  .request-actions button,
-  .request-actions a {
-    flex: 1 !important;
-    text-align: center !important;
-    padding: 8px 12px !important;
-    font-size: 13px !important;
-  }
-
-  /* ===== Explore ===== */
-  .categories {
-    gap: 6px !important;
-  }
-
-  .categories button {
-    font-size: 12px !important;
-    padding: 6px 12px !important;
-  }
-
-  .search-input {
-    font-size: 14px !important;
-    padding: 12px !important;
-  }
-
-  /* ===== General ===== */
-  .container {
-    padding: 16px !important;
-  }
-
+  /* Home */
   h1 {
-    font-size: 24px !important;
+    font-size: 36px !important;
+  }
+
+  /* Cards */
+  main,
+  .container {
+    padding: 24px 16px !important;
+  }
+}
+
+/* ========== MOBILE (max 480px) ========== */
+@media screen and (max-width: 480px) {
+  /* ===== NAVIGATION ===== */
+  nav {
+    padding: 10px 0 !important;
+  }
+
+  nav > div {
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 0 10px !important;
+  }
+
+  nav > div > a:first-child {
+    font-size: 20px !important;
+  }
+
+  nav > div > div {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  nav a,
+  nav button {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+
+  /* ===== HOME PAGE ===== */
+  h1 {
+    font-size: 28px !important;
+    line-height: 1.2 !important;
   }
 
   h2 {
     font-size: 20px !important;
   }
 
-  h3 {
-    font-size: 16px !important;
-  }
-
   p {
     font-size: 14px !important;
+    line-height: 1.5 !important;
   }
 
-  .back-link {
-    font-size: 14px !important;
-    margin-top: 24px !important;
+  /* Home buttons */
+  div[style*="display: flex"][style*="gap: 16px"] {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
   }
 
-  /* ===== Stars Rating ===== */
-  .stars {
+  div[style*="display: flex"][style*="gap: 16px"] > a,
+  div[style*="display: flex"][style*="gap: 16px"] > button {
+    width: 80% !important;
+    text-align: center !important;
+  }
+
+  /* Home features */
+  div[style*="grid-template-columns: repeat(auto-fit, minmax(200px"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* ===== CARDS / CONTAINERS ===== */
+  div[style*="maxWidth: \"600px\""],
+  div[style*="maxWidth: \"800px\""],
+  div[style*="maxWidth: \"900px\""],
+  div[style*="maxWidth: \"1000px\""] {
+    max-width: 100% !important;
+  }
+
+  div[style*="padding: \"40px\""],
+  div[style*="padding: \"60px 20px\""] {
+    padding: 20px 16px !important;
+  }
+
+  div[style*="padding: \"30px\""] {
+    padding: 20px !important;
+  }
+
+  /* ===== STATS GRID ===== */
+  div[style*="grid-template-columns: repeat(auto-fit, minmax(150px"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ===== ACTIONS GRID (Dashboard) ===== */
+  div[style*="grid-template-columns: repeat(auto-fit, minmax(140px"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  div[style*="grid-template-columns: repeat(auto-fit, minmax(200px"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* ===== SKILLS GRID (Explore) ===== */
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(250px"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ===== FORM INPUTS ===== */
+  input,
+  textarea,
+  select {
+    font-size: 15px !important;
+    padding: 10px 12px !important;
+  }
+
+  button {
+    font-size: 15px !important;
+  }
+
+  /* ===== PROFILE ===== */
+  div[style*="gap: \"16px\""] {
+    gap: 10px !important;
+  }
+
+  /* Stars on CompleteSwap */
+  button[style*="font-size: 40px"] {
     font-size: 30px !important;
-    gap: 4px !important;
   }
 
-  .stars button {
-    font-size: 30px !important;
-  }
-}
-
-/* Small Mobile */
-@media screen and (max-width: 360px) {
-  .home-title {
-    font-size: 22px !important;
+  /* Skills tags */
+  span[style*="padding: \"6px 14px\""] {
+    font-size: 12px !important;
+    padding: 4px 10px !important;
   }
 
-  nav .links {
+  /* ===== REQUEST CARD ===== */
+  div[style*="justify-content: space-between"] {
+    flex-wrap: wrap !important;
     gap: 6px !important;
   }
 
-  nav .links a,
-  nav .links button {
-    font-size: 12px !important;
-    padding: 4px 8px !important;
+  /* ===== BUTTONS IN REQUEST ===== */
+  div[style*="display: flex"][style*="gap: 12px"] {
+    flex-direction: column !important;
+    gap: 8px !important;
   }
 
-  .dashboard-welcome {
-    font-size: 18px !important;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .request-actions button,
-  .request-actions a {
-    font-size: 12px !important;
-    padding: 6px 10px !important;
-  }
-
-  .card {
-    padding: 14px !important;
+  div[style*="display: flex"][style*="gap: 12px"] > button,
+  div[style*="display: flex"][style*="gap: 12px"] > a {
+    width: 100% !important;
+    text-align: center !important;
   }
 }
 
-/* ========== Print Styles ========== */
-@media print {
-  nav {
-    display: none !important;
+/* ========== SMALL MOBILE (max 360px) ========== */
+@media screen and (max-width: 360px) {
+  h1 {
+    font-size: 24px !important;
   }
-  
-  .no-print {
-    display: none !important;
+
+  nav a,
+  nav button {
+    font-size: 12px !important;
+    padding: 5px 8px !important;
   }
-  
-  .card {
-    box-shadow: none !important;
-    border: 1px solid #ddd !important;
+
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
   }
 }

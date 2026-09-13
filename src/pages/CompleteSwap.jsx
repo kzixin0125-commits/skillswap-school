@@ -1,307 +1,329 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { collection, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
-function Requests() {
-  const { user } = useAuth();
-  const [incoming, setIncoming] = useState([]);
-  const [outgoing, setOutgoing] = useState([]);
+function CompleteSwap() {
+  const { requestId } = useParams();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  const [request, setRequest] = useState(null);
+  const [partner, setPartner] = useState(null);
+  const [isLearner, setIsLearner] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [review, setReview] = useState("");
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (authLoading) return;
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (requestId) {
+      fetchRequest();
+    }
+  }, [requestId, user, authLoading]);
 
-  const fetchRequests = async () => {
+  const fetchRequest = async () => {
     setLoading(true);
     try {
-      const usersSnapshot = await getDocs(collection(db, "users"));
-      const usersMap = {};
-      usersSnapshot.forEach((doc) => {
-        usersMap[doc.id] = doc.data();
-      });
-      setUsers(usersMap);
+      const reqDoc = await getDoc(doc(db, "requests", requestId));
+      if (!reqDoc.exists()) {
+        setError("Request not found");
+        setLoading(false);
+        return;
+      }
 
-      const incomingQuery = query(
-        collection(db, "requests"),
-        where("receiverId", "==", user.uid)
-      );
-      const incomingSnapshot = await getDocs(incomingQuery);
-      const incomingList = [];
-      incomingSnapshot.forEach((doc) => {
-        incomingList.push({ id: doc.id, ...doc.data() });
-      });
-      setIncoming(incomingList);
+      const reqData = { id: reqDoc.id, ...reqDoc.data() };
+      setRequest(reqData);
 
-      const outgoingQuery = query(
-        collection(db, "requests"),
-        where("senderId", "==", user.uid)
-      );
-      const outgoingSnapshot = await getDocs(outgoingQuery);
-      const outgoingList = [];
-      outgoingSnapshot.forEach((doc) => {
-        outgoingList.push({ id: doc.id, ...doc.data() });
-      });
-      setOutgoing(outgoingList);
-    } catch (error) {
-      console.error("Error fetching requests:", error);
+      // 我是 sender = 学习者
+      const iAmSender = user.uid === reqData.senderId;
+      setIsLearner(iAmSender);
+
+      const partnerId = iAmSender ? reqData.receiverId : reqData.senderId;
+      const partnerDoc = await getDoc(doc(db, "users", partnerId));
+      if (partnerDoc.exists()) {
+        setPartner({ uid: partnerId, ...partnerDoc.data() });
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setError("Failed to load request");
     }
     setLoading(false);
   };
 
-  const handleAccept = async (requestId) => {
+  const handleComplete = async () => {
+    setSubmitting(true);
+    setError("");
+
     try {
       await updateDoc(doc(db, "requests", requestId), {
-        status: "accepted",
+        status: "completed",
       });
-      fetchRequests();
-    } catch (error) {
-      console.error("Error accepting request:", error);
-      alert("Failed to accept request. Please try again.");
-    }
-  };
 
-  const handleDecline = async (requestId) => {
-    try {
-      await updateDoc(doc(db, "requests", requestId), {
-        status: "declined",
+      if (isLearner && partner) {
+        // 学习者给教授者评分
+        await addDoc(collection(db, "ratings"), {
+          fromUserId: user.uid,
+          toUserId: partner.uid,
+          requestId: requestId,
+          rating: rating,
+          review: review,
+          createdAt: new Date().toISOString(),
+        });
+
+        // 更新教授者 rating
+        const partnerRef = doc(db, "users", partner.uid);
+        const ratingsSnapshot = await getDocs(collection(db, "ratings"));
+        let total = 0;
+        let count = 0;
+        ratingsSnapshot.forEach((d) => {
+          const data = d.data();
+          if (data.toUserId === partner.uid) {
+            total += data.rating;
+            count++;
+          }
+        });
+        const avg = count > 0 ? Math.round((total / count) * 10) / 10 : 0;
+
+        const partnerDoc = await getDoc(partnerRef);
+        await updateDoc(partnerRef, {
+          rating: avg,
+          completedSwaps: (partnerDoc.data()?.completedSwaps || 0) + 1,
+        });
+      }
+
+      // 更新自己的 completedSwaps
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+      await updateDoc(userRef, {
+        completedSwaps: (userDoc.data()?.completedSwaps || 0) + 1,
       });
-      fetchRequests();
-    } catch (error) {
-      console.error("Error declining request:", error);
-      alert("Failed to decline request. Please try again.");
+
+      setSuccess(true);
+      setTimeout(() => navigate("/requests"), 1500);
+    } catch (err) {
+      console.error("Error completing:", err);
+      setError(err.message);
+      setSubmitting(false);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending": return "#FFA726";
-      case "accepted": return "#66BB6A";
-      case "declined": return "#EF5350";
-      case "completed": return "#42A5F5";
-      default: return "#999";
-    }
-  };
+  if (authLoading || loading) {
+    return <div style={styles.loading}>Loading...</div>;
+  }
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "pending": return "⏳ Pending";
-      case "accepted": return "✅ Accepted";
-      case "declined": return "❌ Declined";
-      case "completed": return "🎉 Completed";
-      default: return status;
-    }
-  };
+  if (error && !request) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <p style={styles.error}>{error}</p>
+          <Link to="/requests" style={styles.backLink}>← Back to Requests</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!request || !partner) {
+    return <div style={styles.loading}>Loading...</div>;
+  }
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>📨 Skill Swap Requests</h1>
-        <p style={styles.subtitle}>Manage your incoming and outgoing requests</p>
+      <div style={styles.card}>
+        <h1 style={styles.title}>🎉 Complete Skill Swap</h1>
+
+        {error && <p style={styles.error}>{error}</p>}
+        {success && <p style={styles.success}>✅ Completed! Redirecting...</p>}
+
+        <div style={styles.requestInfo}>
+          <p><strong>Partner:</strong> {partner.name}</p>
+          <p><strong>Skill:</strong> {isLearner ? request.receiverSkill : request.senderSkill}</p>
+          <p style={styles.roleTag}>
+            {isLearner ? "🎓 You are the Learner" : "👨‍🏫 You are the Teacher"}
+          </p>
+        </div>
+
+        {isLearner && (
+          <>
+            <div style={styles.ratingSection}>
+              <label style={styles.label}>Rate your teacher</label>
+              <div style={styles.stars}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    style={{
+                      ...styles.starBtn,
+                      color: star <= rating ? "#FFD700" : "#ccc",
+                    }}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+              <p style={styles.ratingLabel}>{rating} / 5 stars</p>
+            </div>
+
+            <div style={styles.field}>
+              <label style={styles.label}>Review (optional)</label>
+              <textarea
+                placeholder={`How was ${partner.name}'s teaching?`}
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                style={styles.textarea}
+                rows="3"
+              />
+            </div>
+          </>
+        )}
+
+        {!isLearner && (
+          <p style={styles.infoText}>
+            ⭐ {partner.name} (the learner) will rate you after the swap!
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={handleComplete}
+          style={styles.button}
+          disabled={submitting}
+        >
+          {submitting ? "Submitting..." : isLearner ? "✅ Complete & Rate" : "✅ Mark as Completed"}
+        </button>
+
+        <Link to="/requests" style={styles.backLink}>← Back to Requests</Link>
       </div>
-
-      {loading ? (
-        <p style={styles.loading}>Loading requests...</p>
-      ) : (
-        <>
-          {/* Incoming Requests - 我是接收人（教师） */}
-          <h2 style={styles.sectionTitle}>📥 Incoming Requests</h2>
-          {incoming.length === 0 ? (
-            <p style={styles.emptyState}>No incoming requests yet.</p>
-          ) : (
-            incoming.map((req) => {
-              const sender = users[req.senderId];
-              return (
-                <div key={req.id} style={styles.requestCard}>
-                  <div style={styles.requestHeader}>
-                    <span style={styles.userName}>
-                      {sender?.name || "Unknown User"}
-                    </span>
-                    <span style={{ ...styles.statusTag, backgroundColor: getStatusColor(req.status) }}>
-                      {getStatusText(req.status)}
-                    </span>
-                  </div>
-                  <div style={styles.requestDetails}>
-                    <p style={styles.exchangeNote}>
-                      {sender?.name || "They"} wants to learn <strong>{req.receiverSkill}</strong> from you
-                    </p>
-                  </div>
-                  {req.status === "pending" && (
-                    <div style={styles.actions}>
-                      <button onClick={() => handleAccept(req.id)} style={styles.acceptBtn}>
-                        ✅ Accept
-                      </button>
-                      <button onClick={() => handleDecline(req.id)} style={styles.declineBtn}>
-                        ❌ Decline
-                      </button>
-                    </div>
-                  )}
-                  {/* 教师点击完成 - 只标记完成，不评分 */}
-                  {req.status === "accepted" && (
-                    <Link to={`/complete-swap/${req.id}`} style={styles.completeBtn}>
-                      ✅ Mark as Completed
-                    </Link>
-                  )}
-                </div>
-              );
-            })
-          )}
-
-          {/* Outgoing Requests - 我是发送人（学习者） */}
-          <h2 style={styles.sectionTitle}>📤 Outgoing Requests</h2>
-          {outgoing.length === 0 ? (
-            <p style={styles.emptyState}>No outgoing requests.</p>
-          ) : (
-            outgoing.map((req) => {
-              const receiver = users[req.receiverId];
-              return (
-                <div key={req.id} style={styles.requestCard}>
-                  <div style={styles.requestHeader}>
-                    <span style={styles.userName}>
-                      To: {receiver?.name || "Unknown User"}
-                    </span>
-                    <span style={{ ...styles.statusTag, backgroundColor: getStatusColor(req.status) }}>
-                      {getStatusText(req.status)}
-                    </span>
-                  </div>
-                  <div style={styles.requestDetails}>
-                    <p style={styles.exchangeNote}>
-                      You want to learn <strong>{req.receiverSkill}</strong> from {receiver?.name || "them"}
-                    </p>
-                  </div>
-                  {/* 学习者点击完成 - 进入评分页面 */}
-                  {req.status === "accepted" && (
-                    <Link to={`/complete-swap/${req.id}`} style={styles.completeBtn}>
-                      ⭐ Rate & Complete
-                    </Link>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </>
-      )}
-
-      <Link to="/dashboard" style={styles.backLink}>← Back to Dashboard</Link>
     </div>
   );
 }
 
 const styles = {
   container: {
-    maxWidth: "800px",
-    margin: "0 auto",
-    padding: "40px 20px",
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f5f5f5",
+    padding: "20px",
   },
-  header: {
-    textAlign: "center",
-    marginBottom: "30px",
+  card: {
+    backgroundColor: "white",
+    padding: "40px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    width: "100%",
+    maxWidth: "500px",
   },
   title: {
-    fontSize: "32px",
     color: "#2D2D3F",
-    marginBottom: "4px",
-  },
-  subtitle: {
-    color: "#666",
-    fontSize: "16px",
+    fontSize: "28px",
+    marginBottom: "20px",
+    textAlign: "center",
   },
   loading: {
     textAlign: "center",
-    color: "#666",
     padding: "40px",
+    color: "#666",
   },
-  sectionTitle: {
-    fontSize: "20px",
-    color: "#2D2D3F",
-    marginTop: "30px",
-    marginBottom: "16px",
-  },
-  emptyState: {
-    color: "#999",
-    padding: "20px",
-    textAlign: "center",
-    backgroundColor: "#f9f9f9",
+  requestInfo: {
+    backgroundColor: "#f5f5f5",
+    padding: "16px",
     borderRadius: "8px",
+    marginBottom: "20px",
+    fontSize: "14px",
   },
-  requestCard: {
-    backgroundColor: "white",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-    marginBottom: "12px",
+  roleTag: {
+    marginTop: "8px",
+    color: "#6C63FF",
+    fontWeight: "bold",
   },
-  requestHeader: {
+  ratingSection: {
+    textAlign: "center",
+    marginBottom: "20px",
+  },
+  stars: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "8px",
-    flexWrap: "wrap",
+    justifyContent: "center",
     gap: "8px",
   },
-  userName: {
-    fontSize: "18px",
-    fontWeight: "bold",
-    color: "#2D2D3F",
+  starBtn: {
+    background: "none",
+    border: "none",
+    fontSize: "40px",
+    cursor: "pointer",
   },
-  statusTag: {
-    padding: "4px 12px",
-    borderRadius: "12px",
-    fontSize: "12px",
-    color: "white",
-  },
-  requestDetails: {
+  ratingLabel: {
     fontSize: "14px",
-    color: "#555",
+    color: "#666",
+    marginTop: "8px",
   },
-  exchangeNote: {
-    padding: "6px 0",
-    fontSize: "14px",
-    color: "#444",
-  },
-  actions: {
+  field: {
     display: "flex",
-    gap: "12px",
-    marginTop: "12px",
+    flexDirection: "column",
+    gap: "4px",
+    marginBottom: "16px",
   },
-  acceptBtn: {
+  label: {
+    fontSize: "14px",
+    fontWeight: "bold",
+    color: "#333",
+  },
+  textarea: {
+    padding: "10px",
+    borderRadius: "8px",
+    border: "1px solid #ddd",
+    fontSize: "16px",
+    fontFamily: "Arial, sans-serif",
+    resize: "vertical",
+  },
+  button: {
+    padding: "12px",
     backgroundColor: "#66BB6A",
     color: "white",
     border: "none",
-    padding: "8px 20px",
-    borderRadius: "6px",
+    borderRadius: "8px",
+    fontSize: "16px",
     cursor: "pointer",
-  },
-  declineBtn: {
-    backgroundColor: "#EF5350",
-    color: "white",
-    border: "none",
-    padding: "8px 20px",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-  completeBtn: {
-    display: "inline-block",
-    marginTop: "12px",
-    backgroundColor: "#42A5F5",
-    color: "white",
-    border: "none",
-    padding: "8px 20px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    textDecoration: "none",
-    fontSize: "14px",
+    width: "100%",
   },
   backLink: {
     display: "block",
-    marginTop: "40px",
+    marginTop: "16px",
     color: "#6C63FF",
     textDecoration: "none",
     textAlign: "center",
   },
+  error: {
+    color: "red",
+    fontSize: "14px",
+    textAlign: "center",
+    marginBottom: "12px",
+  },
+  success: {
+    color: "green",
+    fontSize: "14px",
+    textAlign: "center",
+    marginBottom: "12px",
+  },
+  infoText: {
+    fontSize: "14px",
+    color: "#666",
+    textAlign: "center",
+    marginBottom: "16px",
+    padding: "12px",
+    backgroundColor: "#FFF3E0",
+    borderRadius: "8px",
+  },
 };
 
-export default Requests;
+export default CompleteSwap;
